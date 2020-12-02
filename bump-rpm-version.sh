@@ -32,12 +32,12 @@ rpm_update() {
 		message="${message} (#${bugid})"
 	fi
 
-	rpmdev-bumpspec -n "$newversion" -c "$message" "${package}.spec"
+	rpmdev-bumpspec --new="$newversion" --comment="$message"  "${package}.spec"
 
 	git add "${package}.spec"
 
-	spectool -g "${package}.spec"
-	spectool -g -n "${package}.spec" 2>/dev/null |
+	spectool --get-files "${package}.spec"
+	spectool --get-files --dry-run "${package}.spec" 2>/dev/null |
 		sed -e 's!Getting .* to \./!!' |
 		xargs echo fedpkg new-sources
 
