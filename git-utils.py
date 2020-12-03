@@ -10,6 +10,13 @@ _shell_utils = importlib.import_module('shell-utils')
 display_output = _shell_utils.display_output
 run_cmd = _shell_utils.run_cmd
 
+def add(pkg_path, file):
+    run_cmd(['/usr/bin/git', 'add', file], working_directory=pkg_path, wait=True)
+
+def commit(pkg_path, message):
+    run_cmd(['/usr/bin/git', 'commit', '-m', message], working_directory=pkg_path, wait=True)
+
+
 def has_uncommitted_changes(pkg_path):
     proc = run_cmd(['/usr/bin/git', 'ls-files', '--modified'], working_directory=pkg_path, wait=True)
     return bool(proc.stdout.read())

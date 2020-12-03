@@ -38,30 +38,6 @@ run_cmd = _shell_utils.run_cmd
 THIS_DIR = Path(__file__).parent.resolve()
 
 
-def extract_commands(stdout):
-    if 'Already up to date' in stdout:
-        return ()
-    match = re.search('^(fedpkg new-sources .+?)$', stdout, re.MULTILINE)
-    if not match:
-        print('NO "fedpkg" command found!')
-        return ()
-    return (
-        # fedpkg new-sources …
-        match.group(1),
-    )
-
-def verify_gpg_signature(pkg_name, pkg_path):
-    fedpkg_prep = run_cmd(['fedpkg', 'prep'], working_directory=pkg_path, wait=True, exit_on_error=False)
-    if fedpkg_prep.returncode != 0:
-        error = 'error while running "fedpkg prep"'
-        print_status_output(pkg_name, is_error=True, msg=error)
-        has_valid_signature = False
-    else:
-        fedpkg_stderr_str = fedpkg_prep.stderr.read().decode('utf8')
-        has_valid_signature = 'gpgv: Good signature' in fedpkg_stderr_str
-    return has_valid_signature
-
-
 def main():
     arguments = docopt(__doc__)
     certbot_plugins = parse_package_list('CERTBOT-PLUGINS.txt')
@@ -76,7 +52,6 @@ def main():
     pkg_data = _bz.retrieve_release_notification_bugs(package_set)
 
     cmd_log = []
-    bump_version = str(THIS_DIR / 'bump-rpm-version.sh')
     for pkg_name in package_set:
         if pkg_name not in pkg_data:
             print_status_output(pkg_name, is_warning=True, msg='no bugzilla issue')
@@ -99,39 +74,16 @@ def main():
         _git.switch_to_branch('master', pkg_path)
         _git.pull('origin', pkg_path, ff_only=True)
 
+        bump_version = str(THIS_DIR / 'bump-rpm-version.py')
         bump_cmd = [bump_version, pkg_name, bug_summary, bug_id]
         bump_proc = run_cmd(bump_cmd, working_directory=pkg_path, wait=True, exit_on_error=False)
-
         if bump_proc.returncode != 0:
             error = 'error while bumping version in spec file'
             print_status_output(pkg_name, is_error=True, msg=error)
             continue
-        stdout_str = bump_proc.stdout.read().decode('utf8')
-        pkg_cmds = extract_commands(stdout_str)
-        if pkg_cmds:
-            cmd_log.extend([
-                f'cd {pkg_name}',
-                *pkg_cmds,
-                'git commit --amend --no-edit',
-                'cd ..',
-            ])
+        bump_str = bump_proc.stdout.read().decode('utf8')
 
-        has_valid_signature = verify_gpg_signature(pkg_name, pkg_path)
-        if not has_valid_signature:
-            print_status_output(pkg_name, is_error=True, msg='no valid signature')
-            continue
-
-        assert has_valid_signature
-        cmd_str = pkg_cmds[0]
-        assert cmd_str.startswith('fedpkg new-sources ')
-        cmd_new_sources = shlex.split(cmd_str)
-        sources_proc = run_cmd(cmd_new_sources, working_directory=pkg_path, wait=True, exit_on_error=False)
-        if sources_proc.returncode != 0:
-            print_status_output(pkg_name, is_error=True, msg='error while uploading new sources')
-            continue
-        run_cmd(['git', 'commit', '--amend', '--no-edit'], working_directory=pkg_path, wait=True, exit_on_error=True)
-
-        print_status_output(pkg_name, is_error=False)
+        print_status_output(pkg_name, msg=bump_str, is_error=False)
 
     if cmd_log:
         cmd_log.append('\n')
