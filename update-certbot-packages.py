@@ -27,6 +27,7 @@ _colorama_utils = importlib.import_module('colorama-utils')
 _git = importlib.import_module('git-utils')
 _pkg_list = importlib.import_module('pkg-list')
 _shell_utils = importlib.import_module('shell-utils')
+_fed_utils = importlib.import_module('fedora-utils')
 
 colorama_color = _colorama_utils.colorama_color
 display_output = _shell_utils.display_output
@@ -48,6 +49,10 @@ def main():
         'python-acme',
         'certbot', *certbot_plugins)
     package_set = pkg_names or certbot_packages
+
+    if not _fed_utils.has_kerberos_ticket():
+        print_status_output('no valid kerberos ticket', is_warning=True)
+        return
 
     pkg_data = _bz.retrieve_release_notification_bugs(package_set)
 
