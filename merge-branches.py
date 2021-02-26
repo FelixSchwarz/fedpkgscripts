@@ -29,7 +29,7 @@ sanitize_pkg_names = _shell.sanitize_pkg_names
 parse_package_list = _pkg_list.parse_package_list
 
 
-SUPPORTED_BRANCHES = ('f33', 'f32', 'epel7', 'epel8')
+SUPPORTED_BRANCHES = ('f34', 'f33', 'f32', 'epel7', 'epel8')
 
 THIS_DIR = Path(__file__).parent.resolve()
 
