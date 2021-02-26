@@ -46,7 +46,6 @@ DIST_MAP = {
 
     'f33'    : 'fc33',
     'f32'    : 'fc32',
-    'f31'    : 'fc31',
     'epel8'  : 'el8',
     'epel7'  : 'el7',
     # convenience aliases

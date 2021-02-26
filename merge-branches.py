@@ -26,7 +26,7 @@ _shell = importlib.import_module('shell-utils')
 parse_package_list = _pkg_list.parse_package_list
 
 
-SUPPORTED_BRANCHES = ('f33', 'f32', 'f31', 'epel7', 'epel8')
+SUPPORTED_BRANCHES = ('f33', 'f32', 'epel7', 'epel8')
 
 THIS_DIR = Path(__file__).parent.resolve()
 
