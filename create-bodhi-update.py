@@ -44,6 +44,7 @@ parse_package_list = _pkg_list.parse_package_list
 DIST_MAP = {
     'rawhide': 'fc34',
     'master' : 'fc34',
+    'main'   : 'fc34',
 
     'f33'    : 'fc33',
     'f32'    : 'fc32',

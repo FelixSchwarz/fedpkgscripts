@@ -39,7 +39,7 @@ def merge_branch(source_branch, target_branch, pkg_path):
 
 def main():
     arguments = docopt(__doc__)
-    source_branch = 'master'
+    source_branch = 'main'
     target_branches_str = arguments['<TARGET_BRANCHES>']
     pkg_names = sanitize_pkg_names(arguments['<pkg>'])
     if not pkg_names:
