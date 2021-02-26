@@ -102,6 +102,8 @@ def submit_bodji_update(builds, bug_ids=(), autokarma=False, is_dry_run=False):
         '--notes', f'update to {new_version}',
         '--type=enhancement',
         '--severity=low',
+        '--autotime',
+        '--autokarma',
         ('--close-bugs' if close_bugs else None),
         (f'--bugs={",".join(bug_ids)}' if bug_ids else None),
         ','.join(builds),
