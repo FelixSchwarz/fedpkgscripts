@@ -3,7 +3,9 @@
 merge-branches.py
 
 Usage:
-    merge-branches.py [options] <TARGET_BRANCHES> [<pkg>...]
+    merge-branches.py [options] <TARGET_BRANCHES> <pkg>...
+    merge-branches.py [options] <TARGET_BRANCHES> --plugins
+
 """
 
 import importlib
@@ -22,6 +24,7 @@ _pkg_list = importlib.import_module('pkg-list')
 _git_utils = importlib.import_module('git-utils')
 _git = _git_utils
 _shell = importlib.import_module('shell-utils')
+sanitize_pkg_names = _shell.sanitize_pkg_names
 
 parse_package_list = _pkg_list.parse_package_list
 
@@ -38,8 +41,9 @@ def main():
     arguments = docopt(__doc__)
     source_branch = 'master'
     target_branches_str = arguments['<TARGET_BRANCHES>']
-    certbot_plugins = parse_package_list('CERTBOT-PLUGINS.txt')
-    pkg_names = arguments['<pkg>'] or certbot_plugins
+    pkg_names = sanitize_pkg_names(arguments['<pkg>'])
+    if not pkg_names:
+        pkg_names = parse_package_list('CERTBOT-PLUGINS.txt')
 
     target_branches = re.split('\s*,\s*', target_branches_str)
     unknown_branches = set(target_branches).difference(SUPPORTED_BRANCHES)

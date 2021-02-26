@@ -3,7 +3,8 @@
 push-changes.py
 
 Usage:
-    push-changes.py [options] [<pkg>...]
+    push-changes.py [options] <pkg>...
+    push-changes.py [options] --plugins
 
 Options:
   --branches=<branches>     which branches to push [default: master]
@@ -25,17 +26,18 @@ _shell_utils = importlib.import_module('shell-utils')
 
 print_status_output = _shell_utils.print_status_output
 print_in_progress = _shell_utils.print_in_progress
+sanitize_pkg_names = _shell_utils.sanitize_pkg_names
 parse_package_list = _pkg_list.parse_package_list
-
 
 THIS_DIR = Path(__file__).parent.resolve()
 
 def main():
     arguments = docopt(__doc__)
-    certbot_plugins = parse_package_list('CERTBOT-PLUGINS.txt')
-    pkg_names = arguments['<pkg>'] or certbot_plugins
+    pkg_names = sanitize_pkg_names(arguments['<pkg>'])
     branches_str = arguments['--branches']
     branches = re.split('\s*,\s*', branches_str)
+    if not pkg_names:
+        pkg_names = parse_package_list('CERTBOT-PLUGINS.txt')
 
     for pkg_name in pkg_names:
         print_in_progress(pkg_name)

@@ -4,6 +4,7 @@ create-bodhi-update
 
 Usage:
     create-bodhi-update [options] [--do] <release> <pkg>...
+    create-bodhi-update [options] [--do] <release> --all
 
 Options:
     --close-bugs
@@ -124,6 +125,8 @@ def main():
     pkg_names = sanitize_pkg_names(arguments['<pkg>'])
     is_dry_run = not arguments['--do']
     close_bugs = arguments['--close-bugs']
+    if not pkg_names:
+        pkg_names = parse_package_list('CERTBOT-ALL-PACKAGES-AND-PLUGINS.txt')
 
     dist = DIST_MAP[branch_name]
     pkg_builds = {}

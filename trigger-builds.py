@@ -3,7 +3,8 @@
 trigger-builds
 
 Usage:
-   trigger-builds (--scratch|--mock|--build|--copr=<COPR>) [options] [<pkg>...]
+   trigger-builds (--scratch|--mock|--build|--copr=<COPR>) [options] <pkg>...
+   trigger-builds (--scratch|--mock|--build|--copr=<COPR>) [options] --plugins
 
 Options:
    --branch=<branch>            which branch to build [default: master]
@@ -172,9 +173,11 @@ def main():
     copr_repo = arguments['--copr']
 
     is_koji_build = (arguments['--scratch'] or arguments['--build'])
-    pkgs = sanitize_pkg_names(arguments['<pkg>']) or parse_package_list('CERTBOT-PLUGINS.txt')
+    pkg_names = sanitize_pkg_names(arguments['<pkg>'])
+    if not pkg_names:
+        pkg_names = parse_package_list('CERTBOT-PLUGINS.txt')
     builds_in_progress = []
-    for pkg_name in pkgs:
+    for pkg_name in pkg_names:
         pkg_path = Path(pkg_name)
         if _git.has_uncommitted_changes(pkg_path):
             error_msg = 'uncommitted changes, skipping package'

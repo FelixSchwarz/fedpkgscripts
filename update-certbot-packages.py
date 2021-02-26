@@ -3,7 +3,8 @@
 update-certbot-packages.py
 
 Usage:
-    update-certbot-packages.py [options] [<pkg>...]
+    update-certbot-packages.py [options] <pkg>...
+    update-certbot-packages.py [options] --all
 
 Options:
   --verbose-dry-run        query bugzilla only
@@ -41,14 +42,11 @@ THIS_DIR = Path(__file__).parent.resolve()
 
 def main():
     arguments = docopt(__doc__)
-    certbot_plugins = parse_package_list('CERTBOT-PLUGINS.txt')
-    pkg_names = _shell_utils.sanitize_pkg_names(arguments['<pkg>'])
-
+    package_set = _shell_utils.sanitize_pkg_names(arguments['<pkg>'])
     verbose_dry_run = arguments['--verbose-dry-run']
-    certbot_packages = (
-        'python-acme',
-        'certbot', *certbot_plugins)
-    package_set = pkg_names or certbot_packages
+
+    if not package_set:
+        package_set = parse_package_list('CERTBOT-ALL-PACKAGES-AND-PLUGINS.txt')
 
     if not _fed_utils.has_kerberos_ticket():
         print_status_output('no valid kerberos ticket', is_warning=True)
@@ -56,7 +54,6 @@ def main():
 
     pkg_data = _bz.retrieve_release_notification_bugs(package_set)
 
-    cmd_log = []
     for pkg_name in package_set:
         if pkg_name not in pkg_data:
             print_status_output(pkg_name, is_warning=True, msg='no bugzilla issue')
@@ -86,14 +83,9 @@ def main():
             error = 'error while bumping version in spec file'
             print_status_output(pkg_name, is_error=True, msg=error)
             continue
-        bump_str = bump_proc.stdout.read().decode('utf8')
+        bump_str = bump_proc.stdout.read().decode('utf8').strip()
 
         print_status_output(pkg_name, msg=bump_str, is_error=False)
-
-    if cmd_log:
-        cmd_log.append('\n')
-        with open('certbot-update-cmds.sh', 'w') as cmd_fp:
-            cmd_fp.write('\n'.join(cmd_log))
 
 if __name__ == '__main__':
     main()
