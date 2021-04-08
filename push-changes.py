@@ -7,7 +7,7 @@ Usage:
     push-changes.py [options] --plugins
 
 Options:
-  --branches=<branches>     which branches to push [default: main]
+  --branches=<branches>     which branches to push [default: rawhide]
 """
 
 import importlib

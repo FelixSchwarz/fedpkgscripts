@@ -73,7 +73,7 @@ def main():
             # "print_in_progress()" prints without newline
             print('\n', end='')
             continue
-        _git.switch_to_branch('main', pkg_path)
+        _git.switch_to_branch('rawhide', pkg_path)
         _git.pull('origin', pkg_path, ff_only=True)
 
         bump_version = str(THIS_DIR / 'bump-rpm-version.py')
